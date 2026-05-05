@@ -31,6 +31,10 @@ const Subscription = () => {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [selectedZipcodes, setSelectedZipcodes] = useState<string[]>([]);
   const [extraZipcodes, setExtraZipcodes] = useState<number>(0);
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string | null; discountAmount: number }>({
+    code: null,
+    discountAmount: 0,
+  });
   const [showPromoCodeModal, setShowPromoCodeModal] = useState(false);
   const [showZipCodeSelection, setShowZipCodeSelection] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -105,15 +109,24 @@ const Subscription = () => {
     setSelectedPackage(pkg);
     setSelectedZipcodes([]);
     setExtraZipcodes(0);
+    setAppliedPromo({ code: null, discountAmount: 0 });
     setShowPromoCodeModal(true);
     setShowZipCodeSelection(false);
     setShowPaymentModal(false);
   };
 
   // Step 2: Handle promo code completion - Open ZIP code selection
-  const handlePromoCodeComplete = (extraZips: number) => {
-    console.log('Promo code processed, extra ZIP codes:', extraZips);
-    setExtraZipcodes(extraZips);
+  const handlePromoCodeComplete = (payload: {
+    extraZipcodes: number;
+    promoCode: string | null;
+    discountAmount: number;
+  }) => {
+    console.log('Promo code processed:', payload);
+    setExtraZipcodes(payload.extraZipcodes);
+    setAppliedPromo({
+      code: payload.promoCode,
+      discountAmount: Math.max(0, Number(payload.discountAmount) || 0),
+    });
     setShowPromoCodeModal(false);
     
     // Small delay to ensure smooth transition between modals
@@ -157,6 +170,7 @@ const Subscription = () => {
     setSelectedPackage(null);
     setSelectedZipcodes([]);
     setExtraZipcodes(0);
+    setAppliedPromo({ code: null, discountAmount: 0 });
     setShowPromoCodeModal(false);
     setShowZipCodeSelection(false);
     setShowPaymentModal(false);
@@ -318,6 +332,8 @@ const Subscription = () => {
           packageId={selectedPackage.id}
           packageName={selectedPackage.name}
           amount={selectedPackage.price}
+          promoCode={appliedPromo.code}
+          discountAmount={appliedPromo.discountAmount}
           zipcodes={selectedZipcodes}
         />
       )}

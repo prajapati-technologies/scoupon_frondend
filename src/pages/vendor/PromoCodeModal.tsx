@@ -7,10 +7,16 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
 
+export interface PromoProceedPayload {
+  extraZipcodes: number;
+  promoCode: string | null;
+  discountAmount: number;
+}
+
 interface PromoCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onProceedToZipCode: (extraZipcodes: number) => void;
+  onProceedToZipCode: (payload: PromoProceedPayload) => void;
   packageName: string;
   baseZipcodes: number;
 }
@@ -19,6 +25,7 @@ interface PromoCode {
   id: string;
   code: string;
   maxZipCode: number;
+  discountAmount?: number;
   isActive: boolean;
   startDate: string;
   endDate: string;
@@ -61,7 +68,12 @@ const PromoCodeModal = ({
 
       const promoData = await response.json();
       setValidatedPromo(promoData);
-      toast.success(`Promo code applied! You can now add ${promoData.maxZipCode} extra ZIP codes.`);
+      const extra = promoData.maxZipCode ?? 0;
+      const disc = Number(promoData.discountAmount) || 0;
+      const discMsg = disc > 0 ? ` $${disc.toFixed(2)} off at checkout.` : '';
+      toast.success(
+        `Promo applied!${extra > 0 ? ` +${extra} extra ZIP code${extra !== 1 ? "s" : ""}.` : ""}${discMsg}`
+      );
     } catch (error: any) {
       setError(error.message || 'Failed to validate promo code');
       setValidatedPromo(null);
@@ -72,12 +84,16 @@ const PromoCodeModal = ({
 
   const handleProceedWithPromo = () => {
     if (validatedPromo) {
-      onProceedToZipCode(validatedPromo.maxZipCode);
+      onProceedToZipCode({
+        extraZipcodes: validatedPromo.maxZipCode ?? 0,
+        promoCode: validatedPromo.code,
+        discountAmount: Number(validatedPromo.discountAmount) || 0,
+      });
     }
   };
 
   const handleSkipPromo = () => {
-    onProceedToZipCode(0);
+    onProceedToZipCode({ extraZipcodes: 0, promoCode: null, discountAmount: 0 });
   };
 
   const handleClose = () => {
@@ -88,6 +104,7 @@ const PromoCodeModal = ({
   };
 
   const totalZipcodes = baseZipcodes + (validatedPromo?.maxZipCode || 0);
+  const promoDiscount = validatedPromo ? Number(validatedPromo.discountAmount) || 0 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -109,9 +126,14 @@ const PromoCodeModal = ({
                   <p className="text-sm text-gray-600">
                     Base ZIP codes: <span className="font-bold text-[#a0b830]">{baseZipcodes}</span>
                   </p>
-                  {validatedPromo && (
+                  {validatedPromo && (validatedPromo.maxZipCode ?? 0) > 0 && (
                     <p className="text-sm text-green-600 mt-1">
                       Extra ZIP codes: <span className="font-bold">+{validatedPromo.maxZipCode}</span>
+                    </p>
+                  )}
+                  {validatedPromo && promoDiscount > 0 && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Checkout discount: <span className="font-bold">-${promoDiscount.toFixed(2)}</span>
                     </p>
                   )}
                 </div>
@@ -195,7 +217,17 @@ const PromoCodeModal = ({
                         Promo code "{validatedPromo.code}" applied successfully!
                       </p>
                       <p className="text-green-700 text-sm mt-1">
-                        You can now add <span className="font-bold">{validatedPromo.maxZipCode} extra ZIP codes</span> to your package.
+                        {(validatedPromo.maxZipCode ?? 0) > 0 && (
+                          <span>
+                            Extra ZIP allowance: <span className="font-bold">+{validatedPromo.maxZipCode}</span>
+                            {promoDiscount > 0 ? ". " : "."}
+                          </span>
+                        )}
+                        {promoDiscount > 0 && (
+                          <span>
+                            <span className="font-bold">${promoDiscount.toFixed(2)}</span> off at checkout.
+                          </span>
+                        )}
                       </p>
                     </div>
                     <Button

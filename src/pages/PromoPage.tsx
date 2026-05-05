@@ -13,6 +13,7 @@ interface Promo {
   endDate: string;
   isActive?: boolean;
   maxZipCode?: string;
+  discountAmount?: number;
 }
 
 // Promo Card Component
@@ -129,11 +130,27 @@ const PromoCard = ({ promo }: { promo: Promo }) => {
             </div>
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">
-                Coverage Area
+                Extra ZIP slots
               </p>
-              <p className="text-sm font-medium">Up to ZIP {promo.maxZipCode}</p>
+              <p className="text-sm font-medium">+{promo.maxZipCode ?? 0} with code</p>
             </div>
           </div>
+
+          {promo.discountAmount != null && Number(promo.discountAmount) > 0 && (
+            <div className="flex items-center space-x-3 text-gray-600">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <Gift className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">
+                  Checkout discount
+                </p>
+                <p className="text-sm font-medium text-amber-800">
+                  ${Number(promo.discountAmount).toFixed(2)} off
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center space-x-3 text-gray-600">
             <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">

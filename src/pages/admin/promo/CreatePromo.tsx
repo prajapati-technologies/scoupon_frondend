@@ -16,6 +16,7 @@ interface CreatePromoProps {
     startDate: string;
     endDate: string;
     maxZipCode: number | null;
+    discountAmount: number;
     isActive: boolean;
     isSiteWide: boolean;
     createdBy: number;
@@ -30,6 +31,7 @@ const CreatePromo = () => {
         startDate: moment.tz('America/Chicago').format('YYYY-MM-DDTHH:mm'),
         endDate: moment.tz('America/Chicago').add(1, 'week').format('YYYY-MM-DDTHH:mm'),
         maxZipCode: null,
+        discountAmount: 0,
         isActive: true,
         isSiteWide: false,
         createdBy: user?.id || 0
@@ -47,6 +49,12 @@ const CreatePromo = () => {
         // Basic validation
         if (!promoData.title || !promoData.code || !promoData.startDate || !promoData.endDate) {
             setError('Title, code, start date, and end date are required');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!user?.id) {
+            setError('Your session is not ready. Please refresh the page and try again.');
             setIsLoading(false);
             return;
         }
@@ -76,7 +84,9 @@ const CreatePromo = () => {
                 },
                 body: JSON.stringify({
                     ...promoData,
-                    maxZipCode: promoData.maxZipCode || undefined
+                    createdBy: user.id,
+                    maxZipCode: promoData.maxZipCode || undefined,
+                    discountAmount: Number(promoData.discountAmount) || 0,
                 }),
             });
 
@@ -100,6 +110,7 @@ const CreatePromo = () => {
                 startDate: moment.tz('America/Chicago').format('YYYY-MM-DDTHH:mm'),
                 endDate: moment.tz('America/Chicago').add(1, 'week').format('YYYY-MM-DDTHH:mm'),
                 maxZipCode: null,
+                discountAmount: 0,
                 isActive: true,
                 isSiteWide: false,
                 createdBy: user?.id || 0
@@ -190,6 +201,24 @@ const CreatePromo = () => {
                                         placeholder="Enter max zip code"
                                         min={1}
                                     />
+                                </div>
+
+                                <div>
+                                    <Label className="block text-sm font-medium text-gray-700">Discount amount (USD)</Label>
+                                    <Input
+                                        type="number"
+                                        step="0.01"
+                                        min={0}
+                                        value={promoData.discountAmount}
+                                        onChange={(e) => setPromoData({
+                                            ...promoData,
+                                            discountAmount: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
+                                        })}
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        disabled={isLoading}
+                                        placeholder="0.00"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Deducted from package price at Stripe checkout (capped at package price).</p>
                                 </div>
                             </div>
 

@@ -12,6 +12,8 @@ interface PaymentModalProps {
   packageId: number;
   packageName: string;
   amount: number;
+  promoCode?: string | null;
+  discountAmount?: number;
   zipcodes: string[];
 }
 
@@ -21,9 +23,13 @@ export const PaymentModal = ({
   packageId,
   packageName,
   amount,
+  promoCode = null,
+  discountAmount = 0,
   zipcodes
 }: PaymentModalProps) => {
   const [loading, setLoading] = useState(false);
+  const effectiveDiscount = Math.min(Math.max(0, Number(discountAmount) || 0), amount);
+  const totalDue = Math.max(0, amount - effectiveDiscount);
 
   const handleInitiatePayment = async () => {
     try {
@@ -34,6 +40,9 @@ export const PaymentModal = ({
         packageId,
         packageName,
         amount,
+        promoCode,
+        discountAmount: effectiveDiscount,
+        totalDue,
         zipcodes
       });
 
@@ -45,11 +54,17 @@ export const PaymentModal = ({
       }
 
       // Prepare the request body with ZIP codes
-      const requestBody = {
+      const requestBody: {
+        zipcodes: { zipcode: string }[];
+        promoCode?: string;
+      } = {
         zipcodes: zipcodes.map((zipcode) => ({
           zipcode: zipcode.trim(),
         })),
       };
+      if (promoCode?.trim()) {
+        requestBody.promoCode = promoCode.trim();
+      }
 
       console.log('Request body:', requestBody);
 
@@ -128,12 +143,28 @@ export const PaymentModal = ({
           <Card className="p-4 bg-gradient-to-r from-[#a0b830]/5 to-[#a0b830]/10 border-[#a0b830]/20">
             <div className="space-y-4">
               {/* Amount Display */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-[#a0b830]" />
-                  <span className="text-lg font-semibold">Total Amount:</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-[#a0b830]" />
+                    <span className="text-lg font-semibold">Package price:</span>
+                  </div>
+                  <span className={`text-lg font-semibold ${effectiveDiscount > 0 ? "line-through text-gray-500" : "text-[#a0b830]"}`}>
+                    ${amount.toFixed(2)}
+                  </span>
                 </div>
-                <span className="text-2xl font-bold text-[#a0b830]">${amount}</span>
+                {effectiveDiscount > 0 && (
+                  <div className="flex items-center justify-between text-green-700">
+                    <span className="text-sm font-medium">
+                      Promo discount{promoCode ? ` (${promoCode})` : ""}:
+                    </span>
+                    <span className="font-semibold">-${effectiveDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t border-[#a0b830]/30 pt-2">
+                  <span className="text-lg font-semibold">Total due:</span>
+                  <span className="text-2xl font-bold text-[#a0b830]">${totalDue.toFixed(2)}</span>
+                </div>
               </div>
               
               {/* ZIP Codes Section */}
@@ -194,7 +225,7 @@ export const PaymentModal = ({
                 <>
                   Proceed to Payment
                   <span className="ml-2 bg-white bg-opacity-20 px-2 py-1 rounded text-xs">
-                    ${amount}
+                    ${totalDue.toFixed(2)}
                   </span>
                 </>
               )}
