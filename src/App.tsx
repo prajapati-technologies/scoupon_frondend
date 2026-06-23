@@ -45,8 +45,11 @@ import Code from './pages/Code'
 import PromoPage from './pages/PromoPage'
 import EditAdminUser from './pages/admin/users/EditAdminUser'
 import ImportUsers from './pages/admin/users/ImportUsers'
+import AdminPremiumAds from './pages/admin/premium-ads/PremiumAds'
 import CertificationBadge from './pages/vendor/CertificationBadge'
+import PremiumAds from './pages/vendor/PremiumAds'
 import Badge from './pages/Badge'
+import VendorPublicProfile from './pages/VendorPublicProfile'
 function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
 
@@ -88,6 +91,8 @@ function App() {
         <Route path="/conduct-code" element={<Code />} />
         <Route path="/Promos" element={<PromoPage />} />
         <Route path="/badge/:vendorId" element={<Badge />} />
+        <Route path="/vendor-profile/:id" element={<VendorPublicProfile />} />
+        <Route path="/vendors/:slug" element={<VendorPublicProfile />} />
         
         {/* Protected routes that require authentication */}
         <Route path="/my-ads" element={
@@ -129,6 +134,7 @@ function App() {
               <Route path="add/gallery" element={<AddGallery />} />
               <Route path="reset-password" element={<ResetPassword />} />
               <Route path="certification-badge" element={<CertificationBadge />} />
+              <Route path="premium-ads" element={<PremiumAds />} />
               <Route path="/support-chats" element={<Chat />} />
               <Route path="/createticket" element={<CreateTicket />} />
               <Route path="/ticket/:id" element={<TicketMessages />} />
@@ -157,6 +163,7 @@ function App() {
               <Route path="ticket/:id" element={<ChatTicket />} />
               <Route path="update-user/:id" element={<EditAdminUser />} />
               <Route path="import-users" element={<ImportUsers />} />
+              <Route path="premium-ads" element={<AdminPremiumAds />} />
 
             </Routes>
           </ProtectedRoute>

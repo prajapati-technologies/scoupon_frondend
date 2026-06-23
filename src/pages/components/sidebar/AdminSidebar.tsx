@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { useAuth } from "../../../useAuth";
-import { LayoutDashboard, Package, ShoppingCart, LogOutIcon, Users, Lock, Ticket, Upload, Globe } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOutIcon, Users, Lock, Ticket, Upload, Globe, Crown } from "lucide-react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -172,6 +172,20 @@ const AdminSidebar = () => {
             >
               <Users className="mr-2 h-4 w-4" />
               All Users
+            </Link>
+          )}
+
+          {/* Premium Ads */}
+          {canAccessRoute('/admin/premium-ads') && (
+            <Link
+              to="/admin/premium-ads"
+              className={`flex items-center w-full px-4 py-2 rounded-md ${isActiveRoute("/admin/premium-ads")
+                ? "bg-[#a0b830] text-white"
+                : "hover:bg-gray-100 text-gray-700"
+                }`}
+            >
+              <Crown className="mr-2 h-4 w-4" />
+              Premium Ads
             </Link>
           )}
 

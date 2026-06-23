@@ -35,10 +35,12 @@ const UpdateProfile = () => {
   const [isFetching, setIsFetching] = useState(true);
   const [files, setFiles] = useState<{
     companyLogo?: File;
+    bannerImage?: File;
   }>({});
 
   const [previews, setPreviews] = useState({
-    companyLogo: ''
+    companyLogo: '',
+    bannerImage: ''
   });
 
   const [formData, setFormData] = useState<VendorProfileForm>({
@@ -56,6 +58,7 @@ const UpdateProfile = () => {
     webUrl: "",
   });
   const [existingLogo, setExistingLogo] = useState<string>('');
+  const [existingBanner, setExistingBanner] = useState<string>('');
   
   // Add error state
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +101,7 @@ const UpdateProfile = () => {
         });
         
         setExistingLogo(userData.companyLogo || '');
+        setExistingBanner(userData.bannerImage || '');
       } catch (error) {
         console.error("Error fetching profile:", error);
         setError(error instanceof Error ? error.message : 'Failed to load profile data');
@@ -118,7 +122,7 @@ const UpdateProfile = () => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'companyLogo') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'companyLogo' | 'bannerImage') => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
       setFiles(prev => ({
@@ -151,6 +155,9 @@ const UpdateProfile = () => {
 
       if (files.companyLogo) {
         formDataToSend.append('companyLogo', files.companyLogo);
+      }
+      if (files.bannerImage) {
+        formDataToSend.append('bannerImage', files.bannerImage);
       }
 
       const response = await axios.patch(
@@ -227,7 +234,7 @@ const UpdateProfile = () => {
                 <CardHeader>
                   <CardTitle>Profile Images</CardTitle>
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-1 gap-6">
+                <CardContent className="space-y-6">
                   <div>
                     <Label htmlFor="companyLogo">Company Logo</Label>
                     <div className="mt-2 flex items-center gap-4">
@@ -255,6 +262,35 @@ const UpdateProfile = () => {
                         onChange={(e) => handleFileChange(e, 'companyLogo')}
                       />
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="bannerImage">Banner Image (displayed on your public profile)</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="h-20 w-40 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {previews.bannerImage ? (
+                          <img
+                            src={previews.bannerImage}
+                            alt="Banner"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : existingBanner ? (
+                          <img
+                            src={existingBanner}
+                            alt="Banner"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-400">No banner</span>
+                        )}
+                      </div>
+                      <Input
+                        id="bannerImage"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'bannerImage')}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Recommended: 1200x300px landscape image</p>
                   </div>
                 </CardContent>
               </Card>

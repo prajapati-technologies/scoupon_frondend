@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { useAuth } from "../../../useAuth";
-import { LayoutDashboard, Package, ShoppingCart, LogOutIcon, Ticket, Lock, Badge, Globe } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOutIcon, Ticket, Lock, Badge, Globe, Crown } from "lucide-react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -99,6 +99,18 @@ const VendorSidebar = () => {
                             <Link to="/vendor/certification-badge" className="flex items-center">
                                 <Badge className="mr-2 h-4 w-4" />
                                 Certified Vendor Badge
+                            </Link>
+                        </Button>
+                    )}
+
+                    {user && (
+                        <Button
+                            variant={isActiveRoute("/vendor/premium-ads") ? "secondary" : "ghost"}
+                            className="w-full justify-start"
+                        >
+                            <Link to="/vendor/premium-ads" className="flex items-center">
+                                <Crown className="mr-2 h-4 w-4" />
+                                Premium Ad Spot
                             </Link>
                         </Button>
                     )}
