@@ -128,6 +128,16 @@ const AllVendors = () => {
 
   // Search form state
   const [zipCode, setZipCode] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Get unique zipcodes for suggestions
+  const zipcodeSuggestions = useMemo(() => {
+    if (!zipCode.trim() || zipCode.trim().length < 1) return [];
+    const unique = [...new Set(vendors.map((v) => v.zipcode))];
+    return unique
+      .filter((z) => z.toLowerCase().includes(zipCode.trim().toLowerCase()))
+      .slice(0, 8);
+  }, [vendors, zipCode]);
 
   // Listing state
   const [businessTypeFilter, setBusinessTypeFilter] = useState("all");
@@ -328,16 +338,32 @@ const AllVendors = () => {
             </p>
 
             {/* ZIP Code */}
-            <div className="mb-6">
+            <div className="mb-6 relative">
               <label className="block text-sm font-bold text-gray-800 mb-1.5">ZIP / Postal Code</label>
               <Input
                 type="text"
                 placeholder="Enter your ZIP code..."
                 value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
+                onChange={(e) => { setZipCode(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className="w-full bg-white border-gray-300 h-11 max-w-md"
                 onKeyDown={(e) => e.key === "Enter" && handleFindVendors()}
               />
+              {/* Suggestions Dropdown */}
+              {showSuggestions && zipcodeSuggestions.length > 0 && (
+                <div className="absolute z-30 mt-1 w-full max-w-md bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  {zipcodeSuggestions.map((zip) => (
+                    <button
+                      key={zip}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-[#1a5c1a] transition-colors"
+                      onMouseDown={() => { setZipCode(zip); setShowSuggestions(false); }}
+                    >
+                      {zip}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button
