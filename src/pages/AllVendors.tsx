@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Footer from "./components/home/Footer";
 import Header from "./components/home/Header";
 import axios from "axios";
@@ -113,9 +113,12 @@ interface PremiumAdData {
 
 const AllVendors = () => {
   const navigate = useNavigate();
+  const { slug } = useParams<{ slug?: string }>();
   const { isAuthenticated } = useAuth();
   const [vendors, setVendors] = useState<ZipcodeWithUser[]>([]);
   const [premiumAds, setPremiumAds] = useState<PremiumAdData[]>([]);
+  const [cityName, setCityName] = useState("");
+  const [cityState, setCityState] = useState("");
 
   // Generate SEO-friendly slug from company name + id
   const generateSlug = (company: string, name: string, id: number) => {
@@ -207,18 +210,48 @@ const AllVendors = () => {
     fetchPremiumAds();
   }, []);
 
-  // Filter vendors based on zipcode search
+  // Fetch vendors by city when slug is present
+  useEffect(() => {
+    if (!slug) {
+      setCityName("");
+      setCityState("");
+      return;
+    }
+
+    const fetchCityVendors = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/zipcode/city/${slug}`
+        );
+        if (response.data.city) {
+          setCityName(response.data.city);
+          setCityState(response.data.state || "");
+        }
+      } catch (error) {
+        console.error("Failed to fetch city vendors:", error);
+      }
+    };
+
+    fetchCityVendors();
+  }, [slug]);
+
+  // Filter vendors based on zipcode search or city slug
   const searchFilteredVendors = useMemo(() => {
     let filtered = vendors;
 
-    if (zipCode.trim()) {
+    if (slug && cityName) {
+      // Filter vendors whose city matches (from user profile or zipcode city)
+      filtered = filtered.filter((v) =>
+        v.user.city?.toLowerCase() === cityName.toLowerCase()
+      );
+    } else if (zipCode.trim()) {
       filtered = filtered.filter((v) =>
         v.zipcode.toLowerCase().includes(zipCode.trim().toLowerCase())
       );
     }
 
     return filtered;
-  }, [vendors, zipCode]);
+  }, [vendors, zipCode, slug, cityName]);
 
   // Group vendors by userId
   const groupedVendors = useMemo(() => {
@@ -274,18 +307,40 @@ const AllVendors = () => {
     setCurrentPage(1);
   }, [zipCode, businessTypeFilter]);
 
-  const handleFindVendors = () => {
-    const resultsSection = document.getElementById("vendors-results");
-    if (resultsSection) {
-      resultsSection.scrollIntoView({ behavior: "smooth" });
+  const handleFindVendors = async () => {
+    if (!zipCode.trim()) {
+      const resultsSection = document.getElementById("vendors-results");
+      if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
+      return;
     }
+
+    // Detect city from pincode using free API
+    try {
+      const response = await fetch(`https://api.zippopotam.us/us/${zipCode.trim()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.places && data.places.length > 0) {
+          const city = data.places[0]["place name"];
+          const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          navigate(`/all-vendors/${citySlug}`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to detect city:", error);
+    }
+
+    // Fallback: just scroll to results
+    const resultsSection = document.getElementById("vendors-results");
+    if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
   };
 
   // Build browse heading
   const browseHeading = useMemo(() => {
+    if (slug && cityName) return `Browse Vendors in ${cityName}${cityState ? `, ${cityState}` : ""}`;
     if (zipCode.trim()) return `Browse Vendors in ${zipCode.trim()}`;
     return "Browse All Vendors";
-  }, [zipCode]);
+  }, [zipCode, slug, cityName, cityState]);
 
   const getPageNumbers = () => {
     if (totalPages <= 5) {
