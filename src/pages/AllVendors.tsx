@@ -226,6 +226,19 @@ const AllVendors = () => {
         if (response.data.city) {
           setCityName(response.data.city);
           setCityState(response.data.state || "");
+          // Set vendors from city response (transform to match ZipcodeWithUser format)
+          const cityVendors: ZipcodeWithUser[] = response.data.vendors.map((zc: any) => ({
+            id: zc.id,
+            zipcode: zc.zipcode,
+            userId: zc.userId,
+            createdAt: zc.createdAt,
+            updatedAt: zc.updatedAt,
+            user: {
+              ...zc.user,
+              gallery: zc.user.gallery || [],
+            },
+          }));
+          setVendors(cityVendors);
         }
       } catch (error) {
         console.error("Failed to fetch city vendors:", error);
@@ -235,23 +248,18 @@ const AllVendors = () => {
     fetchCityVendors();
   }, [slug]);
 
-  // Filter vendors based on zipcode search or city slug
+  // Filter vendors based on zipcode search (only when no slug)
   const searchFilteredVendors = useMemo(() => {
     let filtered = vendors;
 
-    if (slug && cityName) {
-      // Filter vendors whose city matches (from user profile or zipcode city)
-      filtered = filtered.filter((v) =>
-        v.user.city?.toLowerCase() === cityName.toLowerCase()
-      );
-    } else if (zipCode.trim()) {
+    if (!slug && zipCode.trim()) {
       filtered = filtered.filter((v) =>
         v.zipcode.toLowerCase().includes(zipCode.trim().toLowerCase())
       );
     }
 
     return filtered;
-  }, [vendors, zipCode, slug, cityName]);
+  }, [vendors, zipCode, slug]);
 
   // Group vendors by userId
   const groupedVendors = useMemo(() => {
