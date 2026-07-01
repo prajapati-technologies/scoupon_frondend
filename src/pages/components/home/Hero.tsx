@@ -13,7 +13,7 @@ const Hero = () => {
                     <Search />
                     <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                         <Button className='bg-[#a0b830] hover:bg-[#a0b830] transition duration-300' asChild>
-                            <Link to="/all-vendors">Browse All Vendors</Link>
+                            <Link to="/vendors">Browse All Vendors</Link>
                         </Button>
                         <Button className="text-white bg-[#a0b830] hover:bg-[#a0b830] transition duration-300" asChild>
                             <Link to="/register">Register Your Business</Link>

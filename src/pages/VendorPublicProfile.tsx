@@ -99,7 +99,7 @@ const VendorPublicProfile = () => {
         <Header />
         <div className="flex-1 flex flex-col items-center justify-center pt-16">
           <p className="text-gray-500 text-lg">{error || "Vendor not found"}</p>
-          <Link to="/all-vendors" className="mt-4 text-[#1a5c1a] hover:underline">
+          <Link to="/vendors" className="mt-4 text-[#1a5c1a] hover:underline">
             ← Back to All Vendors
           </Link>
         </div>
@@ -123,7 +123,7 @@ const VendorPublicProfile = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back link */}
           <Link
-            to="/all-vendors"
+            to="/vendors"
             className="inline-flex items-center text-sm text-[#1a5c1a] hover:underline mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />

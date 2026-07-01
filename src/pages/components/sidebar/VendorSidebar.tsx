@@ -133,7 +133,7 @@ const VendorSidebar = () => {
                         variant="ghost"
                         className="w-full justify-start"
                     >
-                        <Link to="/all-vendors" className="flex items-center">
+                        <Link to="/vendors" className="flex items-center">
                             <Globe className="mr-2 h-4 w-4" />
                             Find Vendors
                         </Link>

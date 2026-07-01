@@ -81,8 +81,8 @@ function App() {
       <Routes>
         {/* Public routes - accessible to all users */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/all-vendors" element={<AllVendors />} />
-        <Route path="/all-vendors/:slug" element={<AllVendors />} />
+        <Route path="/vendors" element={<AllVendors />} />
+        <Route path="/vendors/core-aeration-:city" element={<AllVendors />} />
         <Route path="/search-vendors" element={<SearchVendors />} />
         <Route path="/core-aeration" element={<CoreAeration />} />
         <Route path="/core-aeration-caution" element={<CoreAerationCaution />} />

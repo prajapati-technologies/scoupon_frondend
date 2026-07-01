@@ -113,7 +113,8 @@ interface PremiumAdData {
 
 const AllVendors = () => {
   const navigate = useNavigate();
-  const { slug } = useParams<{ slug?: string }>();
+  const { city: cityParam } = useParams<{ city?: string }>();
+  const slug = cityParam ? `core-aeration-${cityParam}` : undefined;
   const { isAuthenticated } = useAuth();
   const [vendors, setVendors] = useState<ZipcodeWithUser[]>([]);
   const [premiumAds, setPremiumAds] = useState<PremiumAdData[]>([]);
@@ -341,7 +342,7 @@ const AllVendors = () => {
           setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           // Navigate to new city URL (this triggers slug useEffect to fetch city vendors)
-          navigate(`/all-vendors/core-aeration-${citySlug}`);
+          navigate(`/vendors/core-aeration-${citySlug}`);
           return;
         }
       }

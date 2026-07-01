@@ -83,7 +83,7 @@ const Header = () => {
           <nav className="hidden md:block">
             <ul className="flex space-x-8 items-center">
               <li>
-                <Link to="/all-vendors" className="text-gray-700 hover:text-[#a0b830] font-medium transition-colors duration-200">
+                <Link to="/vendors" className="text-gray-700 hover:text-[#a0b830] font-medium transition-colors duration-200">
                   Find Vendors
                 </Link>
               </li>
@@ -173,7 +173,7 @@ const Header = () => {
             </li>
             <li>
               <Link
-                to="/all-vendors"
+                to="/vendors"
                 className="block text-gray-700 hover:text-[#a0b830] font-medium py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                 onClick={toggleMobileMenu}
               >

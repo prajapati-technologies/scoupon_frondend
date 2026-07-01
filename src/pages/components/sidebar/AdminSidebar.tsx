@@ -220,8 +220,8 @@ const AdminSidebar = () => {
             </Link>
 
             <Link
-              to="/all-vendors"
-              className={`flex items-center w-full px-4 py-2 rounded-md ${isActiveRoute("/all-vendors")
+              to="/vendors"
+              className={`flex items-center w-full px-4 py-2 rounded-md ${isActiveRoute("/vendors")
                 ? "bg-[#a0b830] text-white"
                 : "hover:bg-gray-100 text-gray-700"
                 }`}
