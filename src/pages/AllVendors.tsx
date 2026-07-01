@@ -329,11 +329,7 @@ const AllVendors = () => {
       return;
     }
 
-    // Scroll to results immediately (pincode filter already active via zipCode state)
-    const resultsSection = document.getElementById("vendors-results");
-    if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
-
-    // Detect city from pincode and update URL (non-blocking)
+    // Detect city from pincode and navigate to new city URL
     try {
       const response = await fetch(`https://api.zippopotam.us/us/${zipCode.trim()}`);
       if (response.ok) {
@@ -344,13 +340,18 @@ const AllVendors = () => {
           setCityName(city);
           setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          // Update URL without navigation (just replace)
-          window.history.replaceState(null, "", `/all-vendors/core-aeration-${citySlug}`);
+          // Navigate to new city URL (this triggers slug useEffect to fetch city vendors)
+          navigate(`/all-vendors/core-aeration-${citySlug}`);
+          return;
         }
       }
     } catch (error) {
       console.error("Failed to detect city:", error);
     }
+
+    // Fallback: scroll to results (filter by zipCode state)
+    const resultsSection = document.getElementById("vendors-results");
+    if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
   };
 
   // Build browse heading
