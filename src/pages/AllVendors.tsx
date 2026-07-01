@@ -718,7 +718,7 @@ const AllVendors = () => {
                               variant="outline"
                               size="sm"
                               className="text-sm border-gray-300 h-9 px-4"
-                              onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
+                              onClick={() => navigate(`/profile/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
                             >
                               View Profile
                             </Button>
@@ -771,7 +771,7 @@ const AllVendors = () => {
                               {[vendor.city, vendor.state, vendorData.zipcodes?.[0]].filter(Boolean).join(", ")}
                             </p>
                             <div className="flex gap-2 mt-3">
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}>View Profile</Button>
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={() => navigate(`/profile/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}>View Profile</Button>
                               <Button size="sm" className="flex-1 text-xs h-8 bg-[#1a5c1a] hover:bg-[#145214] text-white" onClick={() => window.open(`tel:${vendor.phone}`, '_self')}>Contact</Button>
                             </div>
                           </div>

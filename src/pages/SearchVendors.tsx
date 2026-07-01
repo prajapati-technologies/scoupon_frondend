@@ -237,7 +237,7 @@ const SearchVendors = () => {
                             variant="outline"
                             size="sm"
                             className="text-sm border-gray-300 h-9 px-4"
-                            onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
+                            onClick={() => navigate(`/profile/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
                           >
                             View Profile
                           </Button>
@@ -281,7 +281,7 @@ const SearchVendors = () => {
                               variant="outline"
                               size="sm"
                               className="flex-1 text-xs h-8"
-                              onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
+                              onClick={() => navigate(`/profile/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
                             >
                               View Profile
                             </Button>

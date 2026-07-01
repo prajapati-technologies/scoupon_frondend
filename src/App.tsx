@@ -94,7 +94,7 @@ function App() {
         <Route path="/Promos" element={<PromoPage />} />
         <Route path="/badge/:vendorId" element={<Badge />} />
         <Route path="/vendor-profile/:id" element={<VendorPublicProfile />} />
-        <Route path="/vendor/:slug" element={<VendorPublicProfile />} />
+        <Route path="/profile/:slug" element={<VendorPublicProfile />} />
         
         {/* Protected routes that require authentication */}
         <Route path="/my-ads" element={
