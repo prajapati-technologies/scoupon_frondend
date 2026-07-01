@@ -178,8 +178,10 @@ const AllVendors = () => {
     return flattened;
   };
 
-  // Fetch vendors on component mount
+  // Fetch vendors on component mount (only if no city slug)
   useEffect(() => {
+    if (slug) return; // Skip if city slug is present — city effect will handle it
+
     const fetchVendors = async () => {
       setLoading(true);
       try {
@@ -208,7 +210,7 @@ const AllVendors = () => {
 
     fetchVendors();
     fetchPremiumAds();
-  }, []);
+  }, [slug]);
 
   // Fetch vendors by city when slug is present
   useEffect(() => {
@@ -222,6 +224,7 @@ const AllVendors = () => {
     const citySlug = slug.startsWith("core-aeration-") ? slug.replace("core-aeration-", "") : slug;
 
     const fetchCityVendors = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/zipcode/city/${citySlug}`
@@ -229,7 +232,6 @@ const AllVendors = () => {
         if (response.data.city) {
           setCityName(response.data.city);
           setCityState(response.data.state || "");
-          // Set vendors from city response (transform to match ZipcodeWithUser format)
           const cityVendors: ZipcodeWithUser[] = response.data.vendors.map((zc: any) => ({
             id: zc.id,
             zipcode: zc.zipcode,
@@ -245,6 +247,8 @@ const AllVendors = () => {
         }
       } catch (error) {
         console.error("Failed to fetch city vendors:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
