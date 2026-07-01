@@ -113,8 +113,12 @@ interface PremiumAdData {
 
 const AllVendors = () => {
   const navigate = useNavigate();
-  const { city: cityParam } = useParams<{ city?: string }>();
-  const slug = cityParam ? `core-aeration-${cityParam}` : undefined;
+  const { country: _country, state: stateParam, city: cityParam, zip } = useParams<{ 
+    country?: string; 
+    state?: string; 
+    city?: string; 
+    zip?: string; 
+  }>();
   const { isAuthenticated } = useAuth();
   const [vendors, setVendors] = useState<ZipcodeWithUser[]>([]);
   const [premiumAds, setPremiumAds] = useState<PremiumAdData[]>([]);
@@ -131,7 +135,7 @@ const AllVendors = () => {
   const [loading, setLoading] = useState(false);
 
   // Search form state
-  const [zipCode, setZipCode] = useState("");
+  const [zipCode, setZipCode] = useState(zip || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Get unique zipcodes for suggestions
@@ -179,9 +183,9 @@ const AllVendors = () => {
     return flattened;
   };
 
-  // Fetch vendors on component mount (only if no city slug)
+  // Fetch vendors on component mount (only if no city/zip params)
   useEffect(() => {
-    if (slug) return; // Skip if city slug is present — city effect will handle it
+    if (cityParam || zip) return;
 
     const fetchVendors = async () => {
       setLoading(true);
@@ -211,18 +215,18 @@ const AllVendors = () => {
 
     fetchVendors();
     fetchPremiumAds();
-  }, [slug]);
+  }, [cityParam, zip]);
 
-  // Fetch vendors by city when slug is present
+  // Fetch vendors by city/zip when URL params are present
   useEffect(() => {
-    if (!slug) {
+    if (!cityParam && !zip) {
       setCityName("");
       setCityState("");
       return;
     }
 
-    // Strip "core-aeration-" prefix from slug to get city slug
-    const citySlug = slug.startsWith("core-aeration-") ? slug.replace("core-aeration-", "") : slug;
+    const citySlug = cityParam || "";
+    const zipFilter = zip || "";
 
     const fetchCityVendors = async () => {
       setLoading(true);
@@ -233,7 +237,7 @@ const AllVendors = () => {
         if (response.data.city) {
           setCityName(response.data.city);
           setCityState(response.data.state || "");
-          const cityVendors: ZipcodeWithUser[] = response.data.vendors.map((zc: any) => ({
+          let cityVendors: ZipcodeWithUser[] = response.data.vendors.map((zc: any) => ({
             id: zc.id,
             zipcode: zc.zipcode,
             userId: zc.userId,
@@ -244,6 +248,10 @@ const AllVendors = () => {
               gallery: zc.user.gallery || [],
             },
           }));
+          // If zip param present, filter to only that zip
+          if (zipFilter) {
+            cityVendors = cityVendors.filter((v) => v.zipcode === zipFilter);
+          }
           setVendors(cityVendors);
         }
       } catch (error) {
@@ -254,7 +262,7 @@ const AllVendors = () => {
     };
 
     fetchCityVendors();
-  }, [slug]);
+  }, [cityParam, zip]);
 
   // Filter vendors based on zipcode search (only when no slug)
   const searchFilteredVendors = useMemo(() => {
@@ -330,7 +338,7 @@ const AllVendors = () => {
       return;
     }
 
-    // Detect city from pincode and navigate to new city URL
+    // Detect city from pincode and navigate to full URL
     try {
       const response = await fetch(`https://api.zippopotam.us/us/${zipCode.trim()}`);
       if (response.ok) {
@@ -338,11 +346,13 @@ const AllVendors = () => {
         if (data && data.places && data.places.length > 0) {
           const city = data.places[0]["place name"];
           const state = data.places[0]["state"];
+          const countryAbbr = data["country abbreviation"]?.toLowerCase() || "us";
           setCityName(city);
           setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          // Navigate to new city URL (this triggers slug useEffect to fetch city vendors)
-          navigate(`/vendors/core-aeration-${citySlug}`);
+          const stateSlug = state.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          // Navigate to full URL: /vendors/us/minnesota/minneapolis/55407
+          navigate(`/vendors/${countryAbbr}/${stateSlug}/${citySlug}/${zipCode.trim()}`);
           return;
         }
       }
@@ -350,17 +360,19 @@ const AllVendors = () => {
       console.error("Failed to detect city:", error);
     }
 
-    // Fallback: scroll to results (filter by zipCode state)
+    // Fallback: scroll to results
     const resultsSection = document.getElementById("vendors-results");
     if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
   };
 
   // Build browse heading
   const browseHeading = useMemo(() => {
+    if (cityName && zip) return `Browse Vendors in ${cityName}, ${cityState} (${zip})`;
     if (cityName) return `Browse Vendors in ${cityName}${cityState ? `, ${cityState}` : ""}`;
+    if (stateParam) return `Browse Vendors in ${stateParam.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}`;
     if (zipCode.trim()) return `Browse Vendors in ${zipCode.trim()}`;
     return "Browse All Vendors";
-  }, [zipCode, cityName, cityState]);
+  }, [zipCode, cityName, cityState, zip, stateParam]);
 
   const getPageNumbers = () => {
     if (totalPages <= 5) {
@@ -706,7 +718,7 @@ const AllVendors = () => {
                               variant="outline"
                               size="sm"
                               className="text-sm border-gray-300 h-9 px-4"
-                              onClick={() => navigate(`/vendors/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
+                              onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}
                             >
                               View Profile
                             </Button>
@@ -759,7 +771,7 @@ const AllVendors = () => {
                               {[vendor.city, vendor.state, vendorData.zipcodes?.[0]].filter(Boolean).join(", ")}
                             </p>
                             <div className="flex gap-2 mt-3">
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={() => navigate(`/vendors/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}>View Profile</Button>
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={() => navigate(`/vendor/${generateSlug(vendor.company, vendor.name, vendor.id)}`)}>View Profile</Button>
                               <Button size="sm" className="flex-1 text-xs h-8 bg-[#1a5c1a] hover:bg-[#145214] text-white" onClick={() => window.open(`tel:${vendor.phone}`, '_self')}>Contact</Button>
                             </div>
                           </div>

@@ -82,7 +82,10 @@ function App() {
         {/* Public routes - accessible to all users */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/vendors" element={<AllVendors />} />
-        <Route path="/vendors/core-aeration-:city" element={<AllVendors />} />
+        <Route path="/vendors/:country" element={<AllVendors />} />
+        <Route path="/vendors/:country/:state" element={<AllVendors />} />
+        <Route path="/vendors/:country/:state/:city" element={<AllVendors />} />
+        <Route path="/vendors/:country/:state/:city/:zip" element={<AllVendors />} />
         <Route path="/search-vendors" element={<SearchVendors />} />
         <Route path="/core-aeration" element={<CoreAeration />} />
         <Route path="/core-aeration-caution" element={<CoreAerationCaution />} />
@@ -93,7 +96,7 @@ function App() {
         <Route path="/Promos" element={<PromoPage />} />
         <Route path="/badge/:vendorId" element={<Badge />} />
         <Route path="/vendor-profile/:id" element={<VendorPublicProfile />} />
-        <Route path="/vendors/:slug" element={<VendorPublicProfile />} />
+        <Route path="/vendor/:slug" element={<VendorPublicProfile />} />
         
         {/* Protected routes that require authentication */}
         <Route path="/my-ads" element={
