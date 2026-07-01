@@ -351,8 +351,8 @@ const AllVendors = () => {
           setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           const stateSlug = state.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          // Navigate to full URL: /vendors/us/minnesota/minneapolis/55407
-          navigate(`/vendors/${countryAbbr}/${stateSlug}/${citySlug}/${zipCode.trim()}`);
+          // Navigate to full URL: /us/minnesota/minneapolis/55407
+          navigate(`/${countryAbbr}/${stateSlug}/${citySlug}/${zipCode.trim()}`);
           return;
         }
       }
