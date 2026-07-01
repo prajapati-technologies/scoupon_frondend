@@ -218,10 +218,13 @@ const AllVendors = () => {
       return;
     }
 
+    // Strip "core-aeration-" prefix from slug to get city slug
+    const citySlug = slug.startsWith("core-aeration-") ? slug.replace("core-aeration-", "") : slug;
+
     const fetchCityVendors = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/zipcode/city/${slug}`
+          `${import.meta.env.VITE_BACKEND_URL}/zipcode/city/${citySlug}`
         );
         if (response.data.city) {
           setCityName(response.data.city);
@@ -252,14 +255,14 @@ const AllVendors = () => {
   const searchFilteredVendors = useMemo(() => {
     let filtered = vendors;
 
-    if (!slug && zipCode.trim()) {
+    if (zipCode.trim()) {
       filtered = filtered.filter((v) =>
         v.zipcode.toLowerCase().includes(zipCode.trim().toLowerCase())
       );
     }
 
     return filtered;
-  }, [vendors, zipCode, slug]);
+  }, [vendors, zipCode]);
 
   // Group vendors by userId
   const groupedVendors = useMemo(() => {
@@ -322,33 +325,36 @@ const AllVendors = () => {
       return;
     }
 
-    // Detect city from pincode using free API
+    // Scroll to results immediately (pincode filter already active via zipCode state)
+    const resultsSection = document.getElementById("vendors-results");
+    if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
+
+    // Detect city from pincode and update URL (non-blocking)
     try {
       const response = await fetch(`https://api.zippopotam.us/us/${zipCode.trim()}`);
       if (response.ok) {
         const data = await response.json();
         if (data && data.places && data.places.length > 0) {
           const city = data.places[0]["place name"];
+          const state = data.places[0]["state"];
+          setCityName(city);
+          setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          navigate(`/all-vendors/${citySlug}`);
-          return;
+          // Update URL without navigation (just replace)
+          window.history.replaceState(null, "", `/all-vendors/core-aeration-${citySlug}`);
         }
       }
     } catch (error) {
       console.error("Failed to detect city:", error);
     }
-
-    // Fallback: just scroll to results
-    const resultsSection = document.getElementById("vendors-results");
-    if (resultsSection) resultsSection.scrollIntoView({ behavior: "smooth" });
   };
 
   // Build browse heading
   const browseHeading = useMemo(() => {
-    if (slug && cityName) return `Browse Vendors in ${cityName}${cityState ? `, ${cityState}` : ""}`;
+    if (cityName) return `Browse Vendors in ${cityName}${cityState ? `, ${cityState}` : ""}`;
     if (zipCode.trim()) return `Browse Vendors in ${zipCode.trim()}`;
     return "Browse All Vendors";
-  }, [zipCode, slug, cityName, cityState]);
+  }, [zipCode, cityName, cityState]);
 
   const getPageNumbers = () => {
     if (totalPages <= 5) {
