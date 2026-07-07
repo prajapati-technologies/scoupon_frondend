@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../../useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { Plus, Pencil, MapPin} from 'lucide-react';
+import { Plus, Pencil, MapPin, Trash2} from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import { AdminDashboardLayout } from '../layout/AdminDashboardLayout';
 import { Link } from 'react-router-dom';
@@ -41,6 +41,21 @@ const AdminPackages = () => {
       toast.error('Failed to fetch packages');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}" package?`)) return;
+    try {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/packages/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      toast.success('Package deleted successfully');
+      fetchPackages();
+    } catch (error) {
+      toast.error('Failed to delete package');
     }
   };
   const hasPermission = (permissionName: Roles): boolean => {
@@ -141,7 +156,7 @@ const AdminPackages = () => {
 
                   {/* Button section with hover effects */}
                   {canPerformAction('Editing') && (
-                  <div className="flex justify-center pt-4">
+                  <div className="flex justify-center gap-3 pt-4">
                     <Link
                       to={`/admin/packages/${pkg.id}/edit`}
                       className="group relative inline-flex items-center justify-center px-6 py-2 overflow-hidden font-medium text-[#a0b830] border-2 border-[#a0b830] rounded-md shadow-md transition-all duration-300 ease-out hover:bg-[#a0b830] hover:text-white"
@@ -149,6 +164,14 @@ const AdminPackages = () => {
                       <Pencil className="h-4 w-4 mr-2" />
                       Edit Package
                     </Link>
+                    {canPerformAction('Deletion') && (
+                      <button
+                        onClick={() => handleDelete(pkg.id, pkg.name)}
+                        className="inline-flex items-center justify-center px-4 py-2 font-medium text-red-600 border-2 border-red-300 rounded-md shadow-md transition-all duration-300 ease-out hover:bg-red-600 hover:text-white hover:border-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                   )}
                 </CardContent>
