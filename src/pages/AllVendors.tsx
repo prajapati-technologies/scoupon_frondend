@@ -113,7 +113,8 @@ interface PremiumAdData {
 
 const AllVendors = () => {
   const navigate = useNavigate();
-  const { state: stateParam, city: cityParam, zip } = useParams<{ 
+  const { country: _country, state: stateParam, city: cityParam, zip } = useParams<{ 
+    country?: string;
     state?: string; 
     city?: string; 
     zip?: string; 
@@ -350,8 +351,8 @@ const AllVendors = () => {
           setCityState(state);
           const citySlug = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           const stateSlug = state.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-          // Navigate to full URL: /us/minnesota/minneapolis/55407
-          navigate(`/${countryAbbr}/${stateSlug}/${citySlug}/${zipCode.trim()}`);
+          // Navigate to full URL: /find/us/minnesota/minneapolis/55407
+          navigate(`/find/${countryAbbr}/${stateSlug}/${citySlug}/${zipCode.trim()}`);
           return;
         }
       }

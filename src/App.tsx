@@ -82,9 +82,10 @@ function App() {
         {/* Public routes - accessible to all users */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/vendors" element={<AllVendors />} />
-        <Route path="/us/:state/:city/:zip" element={<AllVendors />} />
-        <Route path="/us/:state/:city" element={<AllVendors />} />
-        <Route path="/us/:state" element={<AllVendors />} />
+        <Route path="/find/:country/:state/:city/:zip" element={<AllVendors />} />
+        <Route path="/find/:country/:state/:city" element={<AllVendors />} />
+        <Route path="/find/:country/:state" element={<AllVendors />} />
+        <Route path="/find/:country" element={<AllVendors />} />
         <Route path="/search-vendors" element={<SearchVendors />} />
         <Route path="/core-aeration" element={<CoreAeration />} />
         <Route path="/core-aeration-caution" element={<CoreAerationCaution />} />
