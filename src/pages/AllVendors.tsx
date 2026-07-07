@@ -113,8 +113,7 @@ interface PremiumAdData {
 
 const AllVendors = () => {
   const navigate = useNavigate();
-  const { country: _country, state: stateParam, city: cityParam, zip } = useParams<{ 
-    country?: string; 
+  const { state: stateParam, city: cityParam, zip } = useParams<{ 
     state?: string; 
     city?: string; 
     zip?: string; 
