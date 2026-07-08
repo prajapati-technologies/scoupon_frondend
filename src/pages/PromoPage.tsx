@@ -227,7 +227,7 @@ const PromoPage = () => {
         throw new Error('Backend URL not configured. Please set VITE_BACKEND_URL environment variable.');
       }
 
-      const response = await fetch(`${backendUrl}/promos/active`);
+      const response = await fetch(`${backendUrl}/promos/all-public`);
       if (!response.ok) {
         throw new Error(`Failed to fetch promotions: ${response.status} ${response.statusText}`);
       }
