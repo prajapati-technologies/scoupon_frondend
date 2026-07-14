@@ -1,7 +1,7 @@
 import PublicLayout from '../components/layout/PublicLayout';
 import BusinessCard from './components/home/BusinessCard';
 import { useAuth } from '../useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import FAQ from './components/home/FAQ';
@@ -9,6 +9,19 @@ import FAQ from './components/home/FAQ';
 const LandingPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Scroll to hash section (e.g., #faq) when navigating from another page
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location.hash]);
 
   // Only redirect if user is authenticated and this is their first visit
   // Allow users to stay on public pages if they want to
